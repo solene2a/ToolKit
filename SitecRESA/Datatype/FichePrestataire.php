@@ -2,8 +2,7 @@
 
 
 namespace SitecRESA\Datatype;
-use SitecRESA\WS\Client;
-use SitecRESA\WS\ApiClient;
+
 
 /**
  * Fiche descriptive d'un hôtel ou de tout autre prestataire SitecRESA.
@@ -32,16 +31,8 @@ use SitecRESA\WS\ApiClient;
  * @property-read string $animaux permet de savoir si le prestataire autorise le animaux ou non avec éventuellemnt un tarif
  * @property-read string $periodeOuverture Ouvert à l'année ou bien du ... au ...
  * @property-read array $modePaiement Tous les modes de paiement acceptés par le prestataire
- * @property-read \SitecRESA\Datatype\Avis $avis Tous les avis de la fiche
- * @property-read string $lastModified retourne le timestamp de la dernière modification. Permet par exemple de gérer du cache
- * @property-read string $noteMoyenne retourne la note moyenne de l'établissement par rapport aux avis récoltés sur votre canal de vente
- * @property-read string $noteMoyennePartagee retourne la note moyenne de l'établissement par rapport aux avis récoltés sur les canaux de vente que vous souhaitez aggréger
- * @property-read string $accommodationRecommended retourne le pourcentage de recommandation de l'établissement par rapport aux recommandations récoltés sur votre canal de vente
- * @property-read string $accommodationRecommendedPartagee retourne le pourcentage de recommandation de l'établissement par rapport aux recommandations récoltés sur les canaux de vente que vous souhaitez aggréger
- * @property-read string $nbrAvis retourne le nombre d'avis récoltés de l'établissement par rapport aux avis récoltés sur votre canal de vente
- * @property-read string $nbrAvisPartages retourne le nombre d'avis récoltés de l'établissement par rapport aux avis récoltés sur les canaux de vente que vous souhaitez aggréger
- * @property string $dateSejour
  * @property-read array $type activite | hebergement
+ * @property-read string $_lastModified retourne le timestamp de la dernière modification. Permet par exemple de gérer du cache
  */
 class FichePrestataire extends DatatypeAbstract implements Fetchable{
     const ORDRE_NBETOILE = "NbEtoile";
@@ -72,18 +63,6 @@ class FichePrestataire extends DatatypeAbstract implements Fetchable{
     protected $_periodeOuverture;
     protected $_modePaiement;
     protected $_lastModified;
-    protected $_avis;
-    protected $_noteMoyenne;
-    protected $_noteMoyennePartagee;
-    protected $_accommodationRecommended;
-    protected $_accommodationRecommendedPartagee;
-    protected $_nbrAvis;
-    protected $_nbrAvisPartages;
-    /**
-     * Date de fin du séjour
-     * @var string
-     */
-    protected $_dateSejour;
     protected $_type;
 
     /**
@@ -94,11 +73,6 @@ class FichePrestataire extends DatatypeAbstract implements Fetchable{
      * @var AccesResolver
      */
     protected $_accesPrixPlancher;
-
-    /**
-     * @var AccesResolver
-     */
-    protected $_accesAggregatedFilteredReviews;
 
     /**
      * @var AccesResolver
@@ -310,23 +284,11 @@ class FichePrestataire extends DatatypeAbstract implements Fetchable{
     }
 
     /**
-     * permet d'obtenir tous les avis.
-     *
-     * @param Client $apiClient
-     *
-     * @return ObjectList
-     */
-    public function getAggregatedFilteredReviews($status = "Active") {
-        return $this->_accesAggregatedFilteredReviews->resolve(array(
-            'status' => $status));
-    }
-
-    /**
      * @param Client $apiClient
      * @param int    $id
      * @return FichePrestataire
      */
-    static function fetch(Client $apiClient, $id) {
+    static function fetch(\SitecRESA\WS\Client $apiClient, $id) {
         return $apiClient->organisme("get",array("idRessource" => $id));
     }
 
@@ -338,7 +300,7 @@ class FichePrestataire extends DatatypeAbstract implements Fetchable{
      *
      * @return string AAAA-MM-JJTHH:mm:SSZ (format ISO-8601)
      */
-    static public function lastModified(Client $apiClient, $id)
+    static public function lastModified(\SitecRESA\WS\Client $apiClient, $id)
     {
         $fiche = $apiClient->propertylastmodified("get",array("idRessource" => $id));
         return $fiche->lastModified;
@@ -355,7 +317,7 @@ class FichePrestataire extends DatatypeAbstract implements Fetchable{
      * @return array
      * @throws \SitecRESA\Exception\IO
      */
-    static public function resolve(ApiClient $apiClient, $resolverList, $aDataType = array())
+    static public function resolve(\SitecRESA\WS\ApiClient $apiClient, $resolverList, $aDataType = array())
     {
         $a = $resolverList->accesResolvers;
 
